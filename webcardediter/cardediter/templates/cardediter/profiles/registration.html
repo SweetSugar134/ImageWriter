@@ -9,13 +9,12 @@
 <body>
     <form action="" method="post">
         {% csrf_token %}
-        <div>
-            x={{ x }}; y={{ y }}
-            {{ form }}
-            <input type="image" src="https://i.pinimg.com/736x/0b/6f/aa/0b6faa695924bb5464ec043782ba6d7f.jpg">
-        </div>
-        {% debug %}
+        {% for field in form %}
+            {{ field.errors }}
+            {{ field.label_tag }}
+            {{ field }}
+        {% endfor %}
+        <input type="submit" value="submit">
     </form>
-
 </body>
 </html>
