@@ -1,3 +1,8 @@
 from django.db import models
 
-# Create your models here.
+from django.contrib.auth.models import User
+
+
+class Picture(models.Model):
+    image = models.ImageField(upload_to='media/userstory/', verbose_name='Картинка')
+    user = models.OneToOneField(User, on_delete=models.CASCADE)

@@ -10,11 +10,10 @@ from django.urls import reverse_lazy
 
 def index(request):
     context = {}
-    context['form'] = MainForm()
+    form = MainForm()
     if request.method == 'POST':
-        print(request.POST)
-        context['x'] = request.POST.get('x')
-        context['y'] = request.POST.get('y')
+        form.template_id = request.POST['template_id']
+    context['form'] = form
     return render(request, 'cardediter/index.html', context=context)
 
 
@@ -30,14 +29,9 @@ class LoginUser(LoginView):
     model = User
     next = reverse_lazy('home')
 
-    def get_context_data(self, **kwargs):
-        data = super().get_context_data(**kwargs)
-        data['next'] = reverse_lazy('home')
-        return data
-
     def get_success_url(self):
         return reverse_lazy('home')
 
-    
+
 class LogoutUser(LogoutView):
     next_page = reverse_lazy('home')
