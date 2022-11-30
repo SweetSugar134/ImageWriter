@@ -2,7 +2,7 @@ from django import forms
 
 
 class MainForm(forms.Form):
-    template_id = forms.IntegerField()
+    template_id = forms.IntegerField(widget=forms.NumberInput(attrs={'value': '1'}))
     text = forms.CharField()
     x = forms.IntegerField()
     y = forms.IntegerField()

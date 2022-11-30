@@ -5,14 +5,18 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
-
+from django.shortcuts import redirect
 
 
 def index(request):
+    if not request.user.is_authenticated:
+        return redirect(reverse_lazy('login'))
     context = {}
-    form = MainForm()
     if request.method == 'POST':
-        form.template_id = request.POST['template_id']
+        form = MainForm(request.POST)
+        return render(request, 'cardediter/index.html', context=context)
+    else:
+        form = MainForm()
     context['form'] = form
     return render(request, 'cardediter/index.html', context=context)
 
@@ -28,6 +32,7 @@ class LoginUser(LoginView):
     template_name = 'cardediter/profiles/login.html'
     model = User
     next = reverse_lazy('home')
+    redirect_authenticated_user = True
 
     def get_success_url(self):
         return reverse_lazy('home')

@@ -15,6 +15,14 @@
         {% csrf_token %}
         <div class="row">
             <div class="col-3">
+                {% if user.is_authenticated %}
+                Пользователь:
+                    {{ user }}
+                {% else %}
+                    <a href="{% url 'login' %}">Войти</a>
+                    |
+                    <a href="{% url 'login' %}">Зарегестрироваться</a>
+                {% endif %}
                 {% for field in  form %}
                 {% if field != form.image %}
                 <div class="form-control">
