@@ -13,11 +13,15 @@ def index(request):
         return redirect(reverse_lazy('login'))
     context = {}
     if request.method == 'POST':
+        print(request.POST)
         form = MainForm(request.POST)
+        context['form'] = form
+        context['x'] = request.POST['image.x']
+        context['y'] = request.POST['image.y']
         return render(request, 'cardediter/index.html', context=context)
-    else:
-        form = MainForm()
+    form = MainForm()
     context['form'] = form
+    print('here')
     return render(request, 'cardediter/index.html', context=context)
 
 
