@@ -1,14 +1,17 @@
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.shortcuts import render
-from .forms import MainForm
+from .forms import MainForm, StoryForm
+from .models import PictureTemplate, StoryPicture
+
 from django.views.generic.edit import CreateView
+
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView, LogoutView
+
 from django.urls import reverse_lazy
-from django.shortcuts import redirect
-from .models import PictureTemplate, Picture
-from django.core.files.images import ImageFile
+from django.shortcuts import redirect, render
+
+
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 
 # def index(request):
@@ -52,13 +55,31 @@ from django.core.files.images import ImageFile
 def index(request):
     if not request.user.is_authenticated:
         return redirect(reverse_lazy('login'))
+    
+    context = {}
+
     if request.method == 'GET':
-        if hasattr(request.user, 'picture'):
-            print('user have related class')
+        context['form'] = MainForm()
+        user_from_request = request.user
+        user_story = StoryPicture.objects.filter(user=user_from_request)
+        if not user_story:
+            inst = PictureTemplate.objects.get(pk=1).image.file.read()
+            file_data = {'image': SimpleUploadedFile('test.png', inst)}
+            story_form = StoryForm({'user': user_from_request.pk}, file_data)
+            story_form.save()
         else:
-            print('user have not related class')
-        return render(request, 'cardediter/index.html')
-        # if not request.user.picture
+            context['current_image'] = user_story.last().image.url
+        return render(request, 'cardediter/index.html', context=context)
+    
+    if request.method == 'POST':
+        context['form'] = MainForm(request.POST)
+        context['x'] = request.POST['x']
+        context['y'] = request.POST['y']
+        user_from_request = request.user
+        user_story = StoryPicture.objects.filter(user=user_from_request)
+        context['current_image'] = user_story.last().image.url
+        print(request.POST)
+        return render(request, 'cardediter/index.html', context=context)
 
 
 class RegistrationUserView(CreateView):

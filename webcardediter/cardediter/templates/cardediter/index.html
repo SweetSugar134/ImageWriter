@@ -15,7 +15,7 @@
         {% csrf_token %}
         <div class="row">
             <div class="col-3">
-                
+                <!-- Информация о пользователе -->
                 {% if user.is_authenticated %}
                 Пользователь:
                     {{ user }} <br>
@@ -26,9 +26,11 @@
                     |
                     <a href="{% url 'login' %}">Зарегестрироваться</a>
                 {% endif %}
-                
+                <!--  -->
+
+                <!-- Прием тескта -->
                 {% for field in  form %}
-                    {% if field != form.image and field != form.template %}
+                    {% if field != form.image %}
                         <div class="form-control">
                             {{ field.label_tag }}
                             <label for="{{ field.id_for_label }}"></label>
@@ -39,25 +41,21 @@
                         </div>
                     {% endif %}
                 {% endfor %}
-                <div class="form-control">
-                    {{ item.label_tag }}
-                    <label for="{{ field.id_for_label }}"></label>
-                    <div style="overflow: auto; max-height: 100px;">
-                        {% for item in form.template %}
-                            {{ item }}
-                        {% endfor %}
-                    </div>
-                    {{ item.errors }}
-                </div>
-                x = {{ x }}<br>
+                <!--  -->
+
+                <a href="">Сменить кртинку</a>
+                <p><b>Текущая история будет удалена!</b></p>
+                <!-- x, y -->
+                x = {{ x }}
+                <br>
                 y = {{ y }}
+                <!--  -->
             </div>
             <div class="col">
-                <input type="image" src="{{ form.image }}">
+                <input type="image" src="{{ current_image }}">
                 
             </div>
         </div>
     </form>
-
 </body>
 </html>

@@ -10,4 +10,4 @@ class PictureTemplate(models.Model):
 
 class StoryPicture(models.Model):
     image = models.ImageField(upload_to='media/userstory/', verbose_name='Шаблон')
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
