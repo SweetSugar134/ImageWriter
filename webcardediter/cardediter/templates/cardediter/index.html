@@ -15,30 +15,46 @@
         {% csrf_token %}
         <div class="row">
             <div class="col-3">
+                
                 {% if user.is_authenticated %}
                 Пользователь:
-                    {{ user }}
+                    {{ user }} <br>
+                    <a href="{% url 'logout' %}">Выйти</a>
+                
                 {% else %}
                     <a href="{% url 'login' %}">Войти</a>
                     |
                     <a href="{% url 'login' %}">Зарегестрироваться</a>
                 {% endif %}
+                
                 {% for field in  form %}
-                {% if field != form.image %}
-                <div class="form-control">
-                    {{ field.label_tag }}
-                    <div>
-                        {{ field }}
-                    </div>
-                    {{ field.errors }}
-                </div>
-                {% endif %}
+                    {% if field != form.image and field != form.template %}
+                        <div class="form-control">
+                            {{ field.label_tag }}
+                            <label for="{{ field.id_for_label }}"></label>
+                            <div>
+                                {{ field }}
+                            </div>
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
                 {% endfor %}
+                <div class="form-control">
+                    {{ item.label_tag }}
+                    <label for="{{ field.id_for_label }}"></label>
+                    <div style="overflow: auto; max-height: 100px;">
+                        {% for item in form.template %}
+                            {{ item }}
+                        {% endfor %}
+                    </div>
+                    {{ item.errors }}
+                </div>
                 x = {{ x }}<br>
                 y = {{ y }}
             </div>
             <div class="col">
-                {{ form.image }}
+                <input type="image" src="{{ form.image }}">
+                
             </div>
         </div>
     </form>
