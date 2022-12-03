@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html style="overflow-x:auto;" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -17,14 +17,20 @@
             <div class="col-3">
                 <!-- Информация о пользователе -->
                 {% if user.is_authenticated %}
-                Пользователь:
-                    {{ user }} <br>
-                    <a href="{% url 'logout' %}">Выйти</a>
-                
+                    <div class="form-control">
+
+                        Пользователь:
+                        {{ user }} <br>
+                        <a href="{% url 'logout' %}">Выйти</a>
+                    
+                    </div>
                 {% else %}
-                    <a href="{% url 'login' %}">Войти</a>
-                    |
-                    <a href="{% url 'login' %}">Зарегестрироваться</a>
+                    <div class="form-control">
+
+                        <a href="{% url 'login' %}">Войти</a>
+                        |
+                        <a href="{% url 'login' %}">Зарегестрироваться</a>
+                    </div>
                 {% endif %}
                 <!--  -->
 
@@ -43,18 +49,28 @@
                 {% endfor %}
                 <!--  -->
 
-                <a href="">Сменить кртинку</a>
-                <p><b>Текущая история будет удалена!</b></p>
+                <!-- Ссылки на смену шаблона или загрузки своей картинки -->
+                <div class="form-control">
+                    <b class="text-danger">!!! Текущая история будет удалена! !!!</b>
+                    <a href="{% url 'temp_change' %}">Выбрать дргуой шаблон</a> <br>
+                    <a href="{% url 'upload_image' %}">Загрузить свою картинку</a> <br>
+                    <b class="text-danger">!!! Текущая история будет удалена! !!!</b>
+                </div>
+                <!--  -->
+
                 <!-- x, y -->
-                x = {{ x }}
-                <br>
-                y = {{ y }}
+                <div class="form-control">
+                    x = {{ x }}
+                    <br>
+                    y = {{ y }}
+                </div>
                 <!--  -->
             </div>
-            <div class="col">
-                <input type="image" src="{{ current_image }}">
-                
+            <!-- Текущая картинка -->
+            <div class="col-9">
+                <input type="image" src="{{ current_image }}">                
             </div>
+            <!-- Текущая картинка -->
         </div>
     </form>
 </body>

@@ -23,3 +23,7 @@ class StoryForm(forms.ModelForm):
     class Meta:
         model = StoryPicture
         fields = '__all__'
+    
+
+class UploadOwnForm(forms.Form):
+    image = forms.ImageField()
