@@ -10,9 +10,9 @@ from django.urls import reverse_lazy
 
 from django.views.generic.edit import CreateView
 
-from .forms import MainForm, StoryForm, TemplateForm, UploadOwnForm
+from .forms import MainForm, StoryForm, TemplateForm, UploadOwnForm, BufferForm
 from .image_handler import resizer, drawer
-from .models import PictureTemplate, StoryPicture
+from .models import PictureTemplate, StoryPicture, Buffer
 
 
 def index(request):
@@ -20,43 +20,37 @@ def index(request):
         return redirect(reverse_lazy('login'))
     print('!!! index() post:', request.POST)
     context = {}
+    user_story = StoryPicture.objects.filter(user=request.user)
+    if not user_story:
+        inst = PictureTemplate.objects.first().image.file.read()
+        if not hasattr(request.user, 'buffer'):
+            buffer = BufferForm({'user': request.user}, {'image': SimpleUploadedFile('{}.png'.format(request.user), inst)})
+            if buffer.is_valid():
+                buffer.save()
+        file_data = {'image': SimpleUploadedFile('test.png', inst)}
+        story_form = StoryForm({'user': request.user.pk}, file_data)
+        story_form.save()
     if request.method == 'GET':
         context['x'] = 0
         context['y'] = 0
-        context['form'] = MainForm()
-        
-        user_from_request = request.user
-        user_story = StoryPicture.objects.filter(user=user_from_request)
-        if not user_story:
-            inst = PictureTemplate.objects.get(pk=1).image.file.read()
-            with open('./buffer/{}.png'.format(request.user), 'wb') as buffer_file:
-                buffer_file.write(inst)
-                buffer_file.close()
-            file_data = {'image': SimpleUploadedFile('test.png', inst)}
-            story_form = StoryForm({'user': user_from_request.pk}, file_data)
-            story_form.save()
-        else:
-            context['story'] = user_story
-            context['current_image'] = 'buffer/{}.png'.format(request.user)
+        context['form'] = MainForm()        
     else:
         context['form'] = MainForm(request.POST)
         context['color'] = request.POST.get('color')
         context['x'] = request.POST['x']
         context['y'] = request.POST['y']
+
         x, y = int(request.POST.get('x')), int(request.POST.get('y'))
         text = request.POST.get('text')
-        user_from_request = request.user
-        user_story = StoryPicture.objects.filter(user=user_from_request)
-        context['story'] = user_story
-        font_size = 40
-        if request.POST.get('font_size'):
-            font_size = int(request.POST.get('font_size'))
+        font_size = int(request.POST.get('font_size'))
         color = request.POST.get('color')
+
         inst = drawer(user_story.last().image, text, (x, y), font_size, color)
-        with open('./buffer/{}.png'.format(request.user), 'wb') as buffer_file:
-                buffer_file.write(inst)
-                buffer_file.close()
-        context['current_image'] = 'buffer/{}.png'.format(request.user)
+
+        change_buffer(inst, request.user)
+
+    context['story'] = user_story
+    context['current_image'] = request.user.buffer.image.url
         
     return render(request, 'cardediter/index.html', context=context)
 
@@ -71,9 +65,7 @@ def change_template(request):
             for instance in user_story:
                 instance.delete()
             inst = PictureTemplate.objects.get(pk=int(request.POST.get('template'))).image.file.read()
-            with open('./buffer/{}.png'.format(request.user), 'wb') as buffer_file:
-                buffer_file.write(inst)
-                buffer_file.close()
+            change_buffer(inst, request.user)
             file_data = {'image': SimpleUploadedFile('test.png', inst)}
             story_form = StoryForm({'user': request.user.pk}, file_data)
             story_form.save()
@@ -98,9 +90,7 @@ def upload_own_image(request):
 
             resized_image = resizer(request.FILES.get('image'))
             inst = resized_image
-            with open('./buffer/{}.png'.format(request.user), 'wb') as buffer_file:
-                buffer_file.write(inst)
-                buffer_file.close()
+            change_buffer(inst, request.user)
             file_data = {'image': SimpleUploadedFile('test.png', inst)}
             story_form = StoryForm({'user': request.user.pk}, file_data)
             return redirect('home')
@@ -122,10 +112,7 @@ def draw_text(request):
     color = request.POST.get('color')
     image_bytes = StoryPicture.objects.filter(user=request.user).last().image
     inst = drawer(image_bytes, text, (x, y), font_size, color)
-    with open('./buffer/{}.png'.format(request.user), 'wb') as buffer_file:
-                buffer_file.write(inst)
-                buffer_file.close()
-
+    change_buffer(inst, request.user)
     file_data = {'image': SimpleUploadedFile('test.png', inst)}
     form = StoryForm({'user': request.user}, file_data)
 
@@ -139,9 +126,8 @@ def draw_text(request):
 def choose_story_template(request):
     if not request.user.is_authenticated:
         return redirect(reverse_lazy('login'))
-    with open('./buffer/{}.png'.format(request.user), 'wb') as buffer_file:
-                buffer_file.write(StoryPicture.objects.get(pk=int(request.POST.get('story'))).image.read())
-                buffer_file.close()
+    inst = StoryPicture.objects.get(pk=int(request.POST.get('story'))).image.read()
+    change_buffer(inst, request.user)
     return redirect('home')
 
 
@@ -167,3 +153,8 @@ class LogoutUser(LogoutView):
     next_page = reverse_lazy('home')
 
 
+def change_buffer(image, user):
+    buffer = Buffer.objects.get(user=user)
+    buffer.image.delete()
+    buffer.image = SimpleUploadedFile('{}.png'.format(user), image)
+    buffer.save()
