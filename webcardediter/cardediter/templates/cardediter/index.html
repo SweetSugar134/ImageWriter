@@ -49,6 +49,12 @@
                 {% endfor %}
                 <!--  -->
 
+                <!-- Choose text color -->
+                <div class="form-control">
+                    <input type="color" name="color" id="" value="{{ color }}">
+                </div>
+                <!--  -->
+
                 <!-- Ссылки на смену шаблона или загрузки своей картинки -->
                 <div class="form-control">
                     <b class="text-danger">!!! Текущая история будет удалена! !!!</b>
@@ -61,9 +67,37 @@
                 <!-- x, y -->
                 <div class="form-control">
                     x = {{ x }}
+                    <input type="hidden" name="user.x" value="{{ x }}">
                     <br>
                     y = {{ y }}
+                    <input type="hidden" name="user.y" value="{{ y }}">
                 </div>
+                <!--  -->
+
+                <!-- Redirect to edit image -->
+                <div class="form-control">
+                    <input type="submit" value="Нарисовать" formaction="{% url 'edit' %}">
+                    <a href="{{ current_image }}" download="">Скачать</a>
+                </div>
+                <!--  -->
+
+                <!-- Story -->
+                <form action="{% url 'choose_story_template' %}">
+                </form>
+                <form action="{% url 'choose_story_template' %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-control">
+                        {% for item in story %}
+                        <div>
+                            <label for="{{ item.pk }}">
+                                <input type="radio" name="story" id="{{ item.pk }}" value="{{ item.pk }}">
+                                <img src="{{ item.image.url }}" alt="" width="100">
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <input type="submit" value="Story!">
+                </form>
                 <!--  -->
             </div>
             <!-- Текущая картинка -->

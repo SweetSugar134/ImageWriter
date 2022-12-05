@@ -1,15 +1,19 @@
+import os
+
 from django.db import models
 
 from django.contrib.auth.models import User
 from django.utils.html import format_html
-
-import pathlib
 
 from webcardediter.settings import BASE_DIR
 
 
 class PictureTemplate(models.Model):
     image = models.ImageField(upload_to='media/picture_templates/', verbose_name='Шаблон')
+    
+    def delete(self, *args, **kwargs):
+        os.remove(self.image.path)
+        super().delete(*args, **kwargs)
 
 
 class StoryPicture(models.Model):
@@ -17,7 +21,5 @@ class StoryPicture(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     
     def delete(self, *args, **kwargs):
-        result_dir = BASE_DIR
-        for i in self.picture.url.split('/'): result_dir /= i
-        pathlib.Path(result_dir).unlink()
+        os.remove(self.image.path)
         super().delete(*args, **kwargs)
