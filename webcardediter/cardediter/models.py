@@ -23,3 +23,8 @@ class StoryPicture(models.Model):
     def delete(self, *args, **kwargs):
         os.remove(self.image.path)
         super().delete(*args, **kwargs)
+
+
+class Buffer(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='buffer/')
