@@ -12,3 +12,7 @@ urlpatterns = [
     path('edit/', draw_text, name='edit'),
     path('story_choose/', choose_story_template, name='choose_story_template')
 ]
+
+
+# Загрузить архив с кодом на парсер в отчет
+# Загрузить отчет по редактору картинок с архивом кода
